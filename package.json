@@ -1,0 +1,13 @@
+{
+  "name": "create-web-service",
+  "version": "0.0.1",
+  "description": "Create web service template based on Next.js, NextAuth, Prisma, and so on",
+  "bin": {
+    "create-next-app": "./src/index.mjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "hiroppy <git@hiroppy.me> (https://hiroppy.me/)",
+  "license": "MIT"
+}
