@@ -1,6 +1,24 @@
 // https://github.com/vercel/next.js/blob/canary/packages/create-next-app/helpers/git.ts
 
 import { execSync } from "node:child_process";
+import { rmSync } from "node:fs";
+import { join } from "node:path";
+
+function isInGitRepository() {
+  try {
+    execSync("git rev-parse --is-inside-work-tree", { stdio: "ignore" });
+    return true;
+  } catch (_) {}
+  return false;
+}
+
+function isInMercurialRepository() {
+  try {
+    execSync("hg --cwd . root", { stdio: "ignore" });
+    return true;
+  } catch (_) {}
+  return false;
+}
 
 export function tryGitInit(root) {
   let didInit = false;
@@ -14,23 +32,20 @@ export function tryGitInit(root) {
     execSync("git init", { stdio: "ignore" });
     didInit = true;
 
-    // if (!isDefaultBranchSet()) {
-    //   execSync("git checkout -b main", { stdio: "ignore" });
-    // }
-
-    // execSync("git add -A", { stdio: "ignore" });
-    // execSync('git commit -m "Initial commit from Create Next App"', {
-    //   stdio: "ignore",
-    // });
     return true;
   } catch (e) {
+    console.log(e);
     if (didInit) {
       try {
-        fs.rmSync(path.join(root, ".git"), { recursive: true, force: true });
+        removeGit(root);
       } catch (_) {}
     }
     return false;
   }
+}
+
+export function removeGit(root) {
+  rmSync(join(root, ".git"), { recursive: true, force: true });
 }
 
 export function cloneRepo() {

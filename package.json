@@ -1,13 +1,30 @@
 {
-  "name": "create-web-service",
-  "version": "0.0.1",
-  "description": "Create web service template based on Next.js, NextAuth, Prisma, and so on",
+  "name": "create-app-foundation",
+  "version": "1.0.4",
+  "description": "Create a web app template using Next.js, NextAuth, Prisma, etc. An easy way to begin development 🐕",
   "bin": {
-    "create-next-app": "./src/index.mjs"
+    "create-app-foundation": "./src/index.mjs"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "engines": {
+    "node": ">=18"
   },
   "author": "hiroppy <git@hiroppy.me> (https://hiroppy.me/)",
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hiroppy/create-app-foundation"
+  },
+  "files": [
+    "src"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "next",
+    "next.js",
+    "nextAuth",
+    "prisma",
+    "typescript",
+    "template",
+    "react hook form"
+  ]
 }
