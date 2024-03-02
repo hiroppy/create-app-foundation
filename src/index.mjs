@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 
+import { createServer } from "node:net";
 import { execSync } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
 import { cloneRepo, removeGit, tryGitInit } from "./git.mjs";
+
+try {
+  await Promise.all([isPortTaken(5432), isPortTaken(5433)]);
+} catch (e) {
+  console.log(e.message);
+  process.exit(1);
+}
 
 const rl = createInterface({ input, output });
 
@@ -19,7 +27,7 @@ let isRemoveDocker = false;
 }
 {
   const answer = await rl.question(
-    question("Do you want to remove Docker for app? (y/N)"),
+    question("Do you want to remove Docker for app? (y/N)")
   );
 
   if (answer === "y" || answer === "Y") {
@@ -51,7 +59,7 @@ console.log("");
 console.log("Completed to setup 🎉🎉🎉🎉🎉🎉");
 console.log("");
 console.log(
-  "🖼️  this code base is https://github.com/hiroppy/web-app-template.",
+  "🖼️  this code base is https://github.com/hiroppy/web-app-template."
 );
 
 function question(title) {
@@ -60,4 +68,17 @@ function question(title) {
 
 function report(text) {
   console.log("\x1b[36m%s\x1b[0m", `🐕  ${text}`);
+}
+
+async function isPortTaken(port) {
+  return new Promise((resolve, reject) => {
+    const tester = createServer()
+      .once("error", (err) => {
+        reject(err);
+      })
+      .once("listening", () => {
+        tester.once("close", () => resolve(true)).close();
+      })
+      .listen(port);
+  });
 }
