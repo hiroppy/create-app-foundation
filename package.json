@@ -3,7 +3,7 @@
   "version": "1.0.5",
   "description": "Create a web app template using Next.js, NextAuth, Prisma, etc. An easy way to begin development 🐕",
   "bin": {
-    "create-app-foundation": "./src/index.mjs"
+    "create-app-foundation": "src/index.mjs"
   },
   "engines": {
     "node": ">=18"
@@ -11,7 +11,7 @@
   "author": "hiroppy <git@hiroppy.me> (https://hiroppy.me/)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/hiroppy/create-app-foundation"
+    "url": "git+https://github.com/hiroppy/create-app-foundation.git"
   },
   "files": [
     "src"
