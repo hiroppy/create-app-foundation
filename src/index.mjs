@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { createServer } from "node:net";
 import { execSync } from "node:child_process";
-import { mkdir } from "node:fs/promises";
+import { cp, mkdir } from "node:fs/promises";
+import { createServer } from "node:net";
 import { join } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -24,10 +24,17 @@ let isRemoveDocker = false;
   const answer = await rl.question(question("What is your project named?"));
 
   workingDir = join(process.cwd(), answer);
+
+  try {
+    await mkdir(workingDir);
+  } catch {
+    error("The directory already exists");
+    process.exit(1);
+  }
 }
 {
   const answer = await rl.question(
-    question("Do you want to remove Docker for app? (y/N)")
+    question("Do you want to remove Docker for app? (y/N)"),
   );
 
   if (answer === "y" || answer === "Y") {
@@ -37,10 +44,14 @@ let isRemoveDocker = false;
 
 rl.close();
 
-await mkdir(workingDir);
 process.chdir(workingDir);
 
-cloneRepo();
+if (process.env.IS_LOCAL_FROM_PATH) {
+  await copyDir(process.env.IS_LOCAL_FROM_PATH);
+} else {
+  cloneRepo();
+}
+
 report("Completed to clone hiroppy/web-app-template");
 removeGit(workingDir);
 tryGitInit(workingDir);
@@ -59,7 +70,7 @@ console.log("");
 console.log("Completed to setup 🎉🎉🎉🎉🎉🎉");
 console.log("");
 console.log(
-  "🖼️  this code base is https://github.com/hiroppy/web-app-template."
+  "🖼️  this code base is https://github.com/hiroppy/web-app-template.",
 );
 
 function question(title) {
@@ -68,6 +79,10 @@ function question(title) {
 
 function report(text) {
   console.log("\x1b[36m%s\x1b[0m", `🐕  ${text}`);
+}
+
+function error(text) {
+  console.error("\x1b[31m%s\x1b[0m", `🔥  ${text} (exited)`);
 }
 
 async function isPortTaken(port) {
@@ -81,4 +96,8 @@ async function isPortTaken(port) {
       })
       .listen(port);
   });
+}
+
+async function copyDir(from) {
+  await cp(from, workingDir, { recursive: true });
 }
