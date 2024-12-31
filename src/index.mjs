@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { cp, mkdir } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
 import { createServer } from "node:net";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { stdin as input, stdout as output } from "node:process";
 import { createInterface } from "node:readline/promises";
@@ -46,13 +47,13 @@ rl.close();
 
 process.chdir(workingDir);
 
-if (process.env.IS_LOCAL_FROM_PATH) {
-  await copyDir(process.env.IS_LOCAL_FROM_PATH);
+if (process.env.LOCAL_FROM_PATH) {
+  await copyDir(process.env.LOCAL_FROM_PATH, workingDir);
 } else {
   cloneRepo();
+  report("Completed to clone hiroppy/web-app-template");
 }
 
-report("Completed to clone hiroppy/web-app-template");
 removeGit(workingDir);
 tryGitInit(workingDir);
 
@@ -64,7 +65,14 @@ execSync("pnpm i", { stdio: "ignore" });
 execSync("cp .env.sample .env.local");
 
 report("Setting up...");
-execSync("node init.mjs --skip-questions", { stdio: "ignore" });
+
+if (isRemoveDocker) {
+  execSync("node init.mjs --skip-questions --remove-docker", {
+    stdio: "ignore",
+  });
+} else {
+  execSync("node init.mjs --skip-questions", { stdio: "ignore" });
+}
 
 console.log("");
 console.log("Completed to setup 🎉🎉🎉🎉🎉🎉");
@@ -98,6 +106,45 @@ async function isPortTaken(port) {
   });
 }
 
-async function copyDir(from) {
-  await cp(from, workingDir, { recursive: true });
+async function copyDir(from, to) {
+  console.log(`copy from ${process.env.LOCAL_FROM_PATH}`);
+  console.log(`copy to ${to}`);
+
+  const tmpDir = join(tmpdir(), "create-app-foundation-");
+
+  console.log(`tmpDir: ${tmpDir}`);
+
+  await copyDirectory(from, tmpDir, [
+    // add files written in .gitignore
+    "node_modules",
+    ".next",
+    "test-results",
+    ".env.local",
+    "next-env.d.ts",
+    "prisma/migrations",
+  ]);
+  await cp(tmpDir, to, { recursive: true });
+  await rm(tmpDir, { recursive: true });
+}
+
+async function copyDirectory(src, dest, exclude = []) {
+  await mkdir(dest, { recursive: true });
+
+  const entries = await readdir(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = join(src, entry.name);
+    const destPath = join(dest, entry.name);
+
+    if (exclude.some((excluded) => srcPath.includes(excluded))) {
+      console.log(`Excluding: ${srcPath}`);
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath, exclude);
+    } else {
+      await cp(srcPath, destPath);
+    }
+  }
 }
