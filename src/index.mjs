@@ -62,7 +62,7 @@ execSync("npm run setup", { stdio: "ignore" });
 report("Installing dependencies...");
 execSync("pnpm i", { stdio: "ignore" });
 
-execSync("cp .env.sample .env.local");
+execSync("cp .env.sample .env");
 
 report("Setting up...");
 
@@ -116,13 +116,13 @@ async function copyDir(from, to) {
 
   await copyDirectory(from, tmpDir, [
     // add files written in .gitignore
-    "node_modules",
-    ".DS_Store",
-    ".next",
-    "test-results",
-    ".env.local",
-    "next-env.d.ts",
-    "prisma/migrations",
+    /node_modules/,
+    /\.DS_Store$/,
+    /\.next$/,
+    /test-results/,
+    /\.env$/,
+    /next-env\.d\.ts$/,
+    /prisma\/migrations/,
   ]);
   await cp(tmpDir, to, { recursive: true });
   await rm(tmpDir, { recursive: true });
@@ -137,7 +137,7 @@ async function copyDirectory(src, dest, exclude = []) {
     const srcPath = join(src, entry.name);
     const destPath = join(dest, entry.name);
 
-    if (exclude.some((excluded) => srcPath.includes(excluded))) {
+    if (exclude.some((pattern) => pattern.test(srcPath))) {
       console.log(`Excluding: ${srcPath}`);
       continue;
     }
