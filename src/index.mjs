@@ -67,11 +67,11 @@ execSync("cp .env.sample .env.local");
 report("Setting up...");
 
 if (isRemoveDocker) {
-  execSync("node init.mjs --skip-questions --remove-docker", {
+  execSync("node .internal/init.mjs --skip-questions --remove-docker", {
     stdio: "ignore",
   });
 } else {
-  execSync("node init.mjs --skip-questions", { stdio: "ignore" });
+  execSync("node .internal/init.mjs --skip-questions", { stdio: "ignore" });
 }
 
 console.log("");
