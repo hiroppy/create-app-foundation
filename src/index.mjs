@@ -35,7 +35,7 @@ let isRemoveDocker = false;
 }
 {
   const answer = await rl.question(
-    question("Do you want to remove Docker for app? (y/N)"),
+    question("Do you want to remove Docker for app? (y/N)")
   );
 
   if (answer === "y" || answer === "Y") {
@@ -78,7 +78,7 @@ console.log("");
 console.log("Completed to setup 🎉🎉🎉🎉🎉🎉");
 console.log("");
 console.log(
-  "🖼️  this code base is https://github.com/hiroppy/web-app-template.",
+  "🖼️  this code base is https://github.com/hiroppy/web-app-template."
 );
 
 function question(title) {
@@ -117,6 +117,7 @@ async function copyDir(from, to) {
   await copyDirectory(from, tmpDir, [
     // add files written in .gitignore
     "node_modules",
+    ".DS_Store",
     ".next",
     "test-results",
     ".env.local",
