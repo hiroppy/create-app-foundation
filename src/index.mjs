@@ -19,7 +19,7 @@ try {
 const rl = createInterface({ input, output });
 
 let workingDir = "";
-let isRemoveDocker = false;
+const args = [];
 
 {
   const answer = await rl.question(question("What is your project named?"));
@@ -35,11 +35,20 @@ let isRemoveDocker = false;
 }
 {
   const answer = await rl.question(
-    question("Do you want to remove Docker for app? (y/N)")
+    question("Do you want to remove Docker for app? (y/N)"),
   );
 
   if (answer === "y" || answer === "Y") {
-    isRemoveDocker = true;
+    args.push("--remove-docker");
+  }
+}
+{
+  const answer = await rl.question(
+    question("Do you want to remove OpenTelemetry for app? (y/N)"),
+  );
+
+  if (answer === "y" || answer === "Y") {
+    args.push("--remove-otel");
   }
 }
 
@@ -57,28 +66,15 @@ if (process.env.LOCAL_FROM_PATH) {
 removeGit(workingDir);
 tryGitInit(workingDir);
 
-execSync("npm run setup", { stdio: "ignore" });
-
-report("Installing dependencies...");
-execSync("pnpm i", { stdio: "ignore" });
-
-execSync("cp .env.sample .env");
-
 report("Setting up...");
-
-if (isRemoveDocker) {
-  execSync("node .internal/init.mjs --skip-questions --remove-docker", {
-    stdio: "ignore",
-  });
-} else {
-  execSync("node .internal/init.mjs --skip-questions", { stdio: "ignore" });
-}
+args.push("--skip-questions");
+execSync(`node .internal/init.mjs ${args.join(" ")}`, { stdio: "inherit" });
 
 console.log("");
 console.log("Completed to setup 🎉🎉🎉🎉🎉🎉");
 console.log("");
 console.log(
-  "🖼️  this code base is https://github.com/hiroppy/web-app-template."
+  "🖼️  this code base is https://github.com/hiroppy/web-app-template.",
 );
 
 function question(title) {
@@ -90,7 +86,7 @@ function report(text) {
 }
 
 function error(text) {
-  console.error("\x1b[31m%s\x1b[0m", `🔥  ${text} (exited)`);
+  console.error("\x1b[31m%s\x1b[0m", `🔥  ${text}`);
 }
 
 async function isPortTaken(port) {
